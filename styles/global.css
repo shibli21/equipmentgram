@@ -23,3 +23,11 @@
   height: 50px;
   object-fit: cover;
 }
+
+/* style a div with the id __next */
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}

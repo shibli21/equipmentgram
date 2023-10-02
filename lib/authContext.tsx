@@ -1,106 +1,81 @@
-import { useState, useEffect, useContext, createContext } from "react";
-import React from "react";
-import { getAuth, onAuthStateChanged, signOut as signout } from "firebase/auth";
-import { setCookie, destroyCookie } from "nookies";
+import {
+  Auth,
+  User,
+  getAuth,
+  onAuthStateChanged,
+  signOut as signout,
+} from "firebase/auth";
+import { destroyCookie, parseCookies, setCookie } from "nookies";
+import React, { useEffect, useState } from "react";
 import firebaseApp from "./firebaseConfig/init";
-import { useSetUser, useUpdateUser } from "./network/users";
-export type TIdTokenResult = {
-  name: string;
-  iss: string;
-  aud: string;
-  auth_time: number;
-  user_id: string;
-  sub: string;
-  iat: number;
-  exp: number;
-  email: string;
-  email_verified: boolean;
-  firebase: {
-    identities: {
-      email: string[];
-    };
-    sign_in_provider: string;
-  };
-  uid: string;
-  claims: {
-    name: string;
-    picture: string;
-    iss: string;
-    aud: string;
-    auth_time: number;
-    user_id: string;
-    sub: string;
-    iat: number;
-    exp: number;
-    email: string;
-    email_verified: boolean;
-    firebase: {
-      identities: {
-        [key: string]: string[];
-      };
-      sign_in_provider: string;
-    };
-  };
-};
+import { useUpdateUser } from "./network/users";
 
-type Props = {
-  children: React.ReactNode;
-};
+const auth: Auth = getAuth(firebaseApp);
+interface AuthContextProps {
+  user: User | null;
+}
 
-type UserContext = {
-  user: TIdTokenResult | null;
-  loading: boolean;
-};
-
-const authContext = createContext<UserContext>({
+export const AuthContext = React.createContext<AuthContextProps>({
   user: null,
-  loading: true,
 });
 
-export default function AuthContextProvider({ children }: Props) {
-  const [user, setUser] = useState<TIdTokenResult | null>(null);
-  const [loading, setLoading] = useState(true);
+export const useAuth = () => React.useContext(AuthContext);
+
+interface AuthContextProviderProps {
+  children: React.ReactNode;
+}
+
+export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
+  children,
+}: AuthContextProviderProps) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const { mutateAsync } = useUpdateUser();
+
   useEffect(() => {
-    const auth = getAuth(firebaseApp);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      //user returned from firebase not the state
-      if (user && user.emailVerified) {
-        mutateAsync({
-          emailVerified: true,
-          user_id: user.uid,
-        });
+      const cookies = parseCookies();
+      if (!cookies.idToken) {
+        setUser(null);
       }
 
       if (user) {
-        // Save token for backend calls
+        setUser(user);
+
+        if (user.emailVerified) {
+          mutateAsync({
+            emailVerified: true,
+            user_id: user.uid,
+          });
+        }
+
         user.getIdToken().then((token) =>
           setCookie(null, "idToken", token, {
             maxAge: 30 * 24 * 60 * 60,
             path: "/",
           }),
         );
-
-        // Save decoded token on the state
-        user
-          .getIdTokenResult()
-          .then((result) => setUser(result as unknown as TIdTokenResult));
+      } else {
+        setUser(null);
       }
-      if (!user) setUser(null);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [mutateAsync]);
 
   return (
-    <authContext.Provider value={{ user, loading }}>
-      {children}
-    </authContext.Provider>
+    <AuthContext.Provider value={{ user }}>
+      {loading ? (
+        <div className="flex items-center justify-center w-screen h-full text-2xl">
+          Loading...
+        </div>
+      ) : (
+        children
+      )}
+    </AuthContext.Provider>
   );
-}
-
-export const useAuth = () => useContext(authContext);
+};
 
 export const signOut = async () => {
   const auth = getAuth();

@@ -23,7 +23,7 @@ function useOnClickOutside(ref: any, handler: () => void) {
 
 function Profile() {
   const { user } = useAuth();
-  const { data: userData } = useGetUser(user?.claims.user_id as string);
+  const { data: userData } = useGetUser(user?.uid as string);
   const [showModal, setShowModal] = useState(false);
   const modalRef = useRef(null);
 
@@ -55,7 +55,7 @@ function Profile() {
 
               <span className="p-1 border rounded-full h-11 w-11 border-stroke bg-gray">
                 <img
-                  src={user.claims.picture}
+                  src={user.photoURL as string}
                   alt="User"
                   className="object-cover object-center w-full h-full rounded-full"
                 />
@@ -262,7 +262,7 @@ function Navbar() {
 }
 
 export default function Header(props: any) {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div

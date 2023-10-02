@@ -15,7 +15,7 @@ const InspectionRequests: NextPage = () => {
   const [sortBySubmitted, setSortBySubmitted] = useState<boolean>(false);
   const [sortByWaitTime, setSortByWaitTime] = useState<boolean>(false);
   const [selectedSteps, setSelectedSteps] = useState<Step[]>([]);
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const {
     data: allInspectionRequests,
     isLoading: isAllInspectionRequestsLoading,
@@ -24,14 +24,13 @@ const InspectionRequests: NextPage = () => {
   const {
     data: allInspectionRequestsForUser,
     isLoading: isAllInspectionRequestsLoadingForUser,
-  } = useInspectionRequestsForUser(user?.claims.user_id as string);
+  } = useInspectionRequestsForUser(user?.uid as string);
 
-  if (loading) return <h1>Loading...</h1>;
   if (!user) return <h1>U need to login</h1>;
 
   return (
     <AdminLayout currentTab={Tab.InspectionRequests}>
-      <div className="-mx-4 flex flex-wrap">
+      <div className="flex flex-wrap -mx-4">
         <div className="w-full px-4 lg:w-4/12">
           <div className="mb-8 rounded-lg shadow-card border-[#e7e7e7] bg-white">
             <div className="border-b border-[#e7e7e7] py-4 px-8 lg:px-6 xl:px-8">
@@ -39,14 +38,14 @@ const InspectionRequests: NextPage = () => {
                 Filter by Step
               </h3>
             </div>
-            <div className="space-y-4 py-9 px-8 lg:px-6 xl:px-8">
+            <div className="px-8 space-y-4 py-9 lg:px-6 xl:px-8">
               {Object.values(Step)
                 .slice(1)
                 .map((step) => (
                   <div key={step}>
                     <label
                       htmlFor={`checkbox-${step}`}
-                      className="flex cursor-pointer select-none items-center text-black"
+                      className="flex items-center text-black cursor-pointer select-none"
                     >
                       <div className="relative">
                         <input
@@ -59,12 +58,12 @@ const InspectionRequests: NextPage = () => {
                               setSelectedSteps([...selectedSteps, step]);
                             } else {
                               setSelectedSteps(
-                                selectedSteps.filter((s) => s !== step)
+                                selectedSteps.filter((s) => s !== step),
                               );
                             }
                           }}
                         />
-                        <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border">
+                        <div className="flex items-center justify-center w-5 h-5 mr-4 border rounded box">
                           <span className="opacity-0">
                             <svg
                               width="11"
@@ -95,11 +94,11 @@ const InspectionRequests: NextPage = () => {
                 Sort By
               </h3>
             </div>
-            <div className="space-y-4 py-9 px-8 lg:px-6 xl:px-8">
+            <div className="px-8 space-y-4 py-9 lg:px-6 xl:px-8">
               <div key="Name">
                 <label
                   htmlFor={`checkbox-Name`}
-                  className="flex cursor-pointer select-none items-center text-black"
+                  className="flex items-center text-black cursor-pointer select-none"
                 >
                   <div className="relative">
                     <input
@@ -109,7 +108,7 @@ const InspectionRequests: NextPage = () => {
                       checked={sortByName}
                       onChange={(e) => setSortByName(e.target.checked)}
                     />
-                    <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border">
+                    <div className="flex items-center justify-center w-5 h-5 mr-4 border rounded box">
                       <span className="opacity-0">
                         <svg
                           width="11"
@@ -134,7 +133,7 @@ const InspectionRequests: NextPage = () => {
               <div key="Submitted">
                 <label
                   htmlFor={`checkbox-Submitted`}
-                  className="flex cursor-pointer select-none items-center text-black"
+                  className="flex items-center text-black cursor-pointer select-none"
                 >
                   <div className="relative">
                     <input
@@ -144,7 +143,7 @@ const InspectionRequests: NextPage = () => {
                       checked={sortBySubmitted}
                       onChange={(e) => setSortBySubmitted(e.target.checked)}
                     />
-                    <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border">
+                    <div className="flex items-center justify-center w-5 h-5 mr-4 border rounded box">
                       <span className="opacity-0">
                         <svg
                           width="11"
@@ -169,7 +168,7 @@ const InspectionRequests: NextPage = () => {
               <div key="WaitTime">
                 <label
                   htmlFor={`checkbox-WaitTime`}
-                  className="flex cursor-pointer select-none items-center text-black"
+                  className="flex items-center text-black cursor-pointer select-none"
                 >
                   <div className="relative">
                     <input
@@ -179,7 +178,7 @@ const InspectionRequests: NextPage = () => {
                       checked={sortByWaitTime}
                       onChange={(e) => setSortByWaitTime(e.target.checked)}
                     />
-                    <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border">
+                    <div className="flex items-center justify-center w-5 h-5 mr-4 border rounded box">
                       <span className="opacity-0">
                         <svg
                           width="11"
@@ -209,7 +208,7 @@ const InspectionRequests: NextPage = () => {
             <div className="overflow-hidden bg-white shadow sm:rounded-md">
               <ul
                 role="list"
-                className="divide-y divide-gray-200 flex flex-col"
+                className="flex flex-col divide-y divide-gray-200"
               >
                 {allInspectionRequests?.map((inspection) => (
                   <InspectionItem inspection={inspection} key={inspection.id} />
