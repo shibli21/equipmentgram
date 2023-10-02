@@ -1,18 +1,24 @@
+import { doc, getDoc } from "@firebase/firestore";
+import {
+  GoogleAuthProvider,
+  getAuth,
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import type { NextPage } from "next";
 import Head from "next/head";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  sendEmailVerification,
-} from "firebase/auth";
-import { useState } from "react";
-import { useAuth } from "../lib/authContext";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { useAuth } from "../lib/authContext";
+import { db } from "../lib/firebaseConfig/init";
+import {
+  User,
+  UserType,
+  UsersCollection,
+  useSetUser,
+} from "../lib/network/users";
 import { addQueryParameters } from "../lib/utils";
-import React from "react";
-import { useSetUser, UserType } from "../lib/network/users";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -20,11 +26,9 @@ const Home: NextPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { mutateAsync } = useSetUser();
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   const { redirect, reffererMsg } = query;
-
-  if (loading) return null;
 
   if (user) return <h1>Authenticated</h1>;
 
@@ -43,23 +47,9 @@ const Home: NextPage = () => {
   function login() {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log("success", user);
-        console.log("redirect", redirect);
-        // mutateAsync({
-        //   user_id: user.uid,
-        //   email: user?.email!,
-        //   display_name: user?.displayName!,
-        //   photoURL: user?.photoURL!,
-        //   phoneNumber: user?.phoneNumber!,
-        //   emailVerified: user?.emailVerified!,
-        //   type: UserType.customer,
-        // });
         doRedirect();
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
         console.log("error", errorMessage);
         window.alert(errorMessage);
@@ -70,14 +60,14 @@ const Home: NextPage = () => {
     const googleProvider = new GoogleAuthProvider();
 
     signInWithPopup(auth, googleProvider)
-      .then((result) => {
+      .then(async (result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        // const token = credential.accessToken;
-        // The signed-in user info.
+        const docRef = doc(db, UsersCollection, result.user.uid);
+        const snapshot = await getDoc(docRef);
+        const userDataFromDb = snapshot.data() as User;
         const user = result.user;
-        console.log("sign with google", user);
-        console.log("redirect", redirect);
+
         mutateAsync({
           user_id: user.uid,
           email: user?.email!,
@@ -85,12 +75,14 @@ const Home: NextPage = () => {
           photoURL: user?.photoURL!,
           phoneNumber: user?.phoneNumber!,
           emailVerified: user?.emailVerified!,
-          type: UserType.customer,
+          type: userDataFromDb?.type ? userDataFromDb.type : UserType.customer,
         });
 
-        sendEmailVerification(auth.currentUser!).then(() => {
-          console.log("email sent");
-        });
+        if (!user?.emailVerified) {
+          sendEmailVerification(auth.currentUser!).then(() => {
+            console.log("email sent");
+          });
+        }
 
         doRedirect();
       })

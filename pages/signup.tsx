@@ -26,7 +26,7 @@ const schema = Yup.object().shape({
 });
 
 const Home: NextPage = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const { mutateAsync } = useSetUser();
@@ -48,8 +48,6 @@ const Home: NextPage = () => {
       jobTitle: "",
     },
   });
-
-  if (loading) return null;
 
   if (user) return <h1>Authenticated</h1>;
 

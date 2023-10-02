@@ -31,14 +31,16 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { mutateAsync } = useUpdateUser();
+  const cookies = parseCookies();
+
+  useEffect(() => {
+    if (!cookies.idToken) {
+      signout(auth);
+    }
+  }, [cookies]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      const cookies = parseCookies();
-      if (!cookies.idToken) {
-        setUser(null);
-      }
-
       if (user) {
         setUser(user);
 
@@ -62,7 +64,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     });
 
     return () => unsubscribe();
-  }, [mutateAsync]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user }}>

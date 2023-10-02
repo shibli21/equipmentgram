@@ -8,7 +8,7 @@ import {
 } from "../../lib/network/inspection-requests";
 
 const Inspectors: NextPage = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const {
     data: allInspectionRequests,
     isLoading: isAllInspectionRequestsLoading,
@@ -17,9 +17,8 @@ const Inspectors: NextPage = () => {
   const {
     data: allInspectionRequestsForUser,
     isLoading: isAllInspectionRequestsLoadingForUser,
-  } = useInspectionRequestsForUser(user?.claims.user_id as string);
+  } = useInspectionRequestsForUser(user?.uid);
 
-  if (loading) return <h1>Loading...</h1>;
   if (!user) return <h1>U need to login</h1>;
 
   return (
