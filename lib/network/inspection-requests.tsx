@@ -25,13 +25,13 @@ export const useInspectionRequests = () => {
     [InspectionRequestsCollection],
     async () => {
       const snapshot = await getDocs(
-        collection(db, InspectionRequestsCollection)
+        collection(db, InspectionRequestsCollection),
       );
       return snapshot.docs.map(
         (doc) =>
-          ({ id: doc.id, ...doc.data() } as InspectionRequestObjectWithId)
+          ({ id: doc.id, ...doc.data() }) as InspectionRequestObjectWithId,
       );
-    }
+    },
   );
 };
 
@@ -42,17 +42,17 @@ export const useInspectionRequestsForUser = (user_id: string | undefined) => {
     async () => {
       const q = await query(
         collection(db, InspectionRequestsCollection),
-        where("user_id", "==", user_id)
+        where("user_id", "==", user_id),
       );
       const snapshot = await getDocs(q);
       return snapshot.docs.map(
         (doc) =>
-          ({ id: doc.id, ...doc.data() } as InspectionRequestObjectWithId)
+          ({ id: doc.id, ...doc.data() }) as InspectionRequestObjectWithId,
       );
     },
     {
       enabled: !!user_id,
-    }
+    },
   );
 };
 
@@ -67,9 +67,16 @@ export const useAddInspectionRequest = () => {
         queryClient.invalidateQueries([InspectionRequestsCollection]);
         queryClient.refetchQueries([InspectionRequestsCollection]);
       },
-    }
+    },
   );
 };
+
+export enum InspectionReportStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
+  FilledForm = "FilledForm",
+}
 
 // To add an inspector to an inspection request, we simply set the inspectorRef to the user document
 // and set the step to "Inspection" to signify that the inspection request is ready to handle an inspection
@@ -89,7 +96,8 @@ export const useAddInspectorToInspectionRequest = () => {
         {
           inspectorRef: userDoc,
           step: Step.Inspection,
-        }
+          reportStatus: InspectionReportStatus.Pending,
+        },
       );
     },
     {
@@ -97,7 +105,7 @@ export const useAddInspectorToInspectionRequest = () => {
         queryClient.invalidateQueries([InspectionRequestsCollection]);
         queryClient.refetchQueries([InspectionRequestsCollection]);
       },
-    }
+    },
   );
 };
 
@@ -112,7 +120,7 @@ export const useRemoveInspectorFromInspectionRequest = () => {
         {
           inspectorRef: null,
           step: Step.Schedule,
-        }
+        },
       );
     },
     {
@@ -120,6 +128,6 @@ export const useRemoveInspectorFromInspectionRequest = () => {
         queryClient.invalidateQueries([InspectionRequestsCollection]);
         queryClient.refetchQueries([InspectionRequestsCollection]);
       },
-    }
+    },
   );
 };

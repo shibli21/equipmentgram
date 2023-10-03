@@ -18,7 +18,10 @@ import AddressInput from "./AddressAutoComplete";
 import { EquipmentManufacturer, EquipmentType, USStates } from "./formUtils";
 import { useAuth } from "../../lib/authContext";
 import { useRouter } from "next/router";
-import { useAddInspectionRequest } from "../../lib/network/inspection-requests";
+import {
+  InspectionReportStatus,
+  useAddInspectionRequest,
+} from "../../lib/network/inspection-requests";
 import classNames from "classnames";
 import { Step } from "./StepWidget";
 import {
@@ -49,6 +52,7 @@ export type InspectionRequestObject = {
   notes?: string;
   step: Step;
   created: FieldValue;
+  reportStatus?: InspectionReportStatus;
 };
 
 const schema = yup.object().shape({
