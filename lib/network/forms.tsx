@@ -1,7 +1,6 @@
 import { addDoc, collection } from "@firebase/firestore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  DocumentReference,
   doc,
   getDoc,
   getDocs,
@@ -9,14 +8,11 @@ import {
   runTransaction,
   where,
 } from "firebase/firestore";
-import { db } from "../firebaseConfig/init";
-import { UserWithId, UsersCollection } from "./users";
-import {
-  InspectionRequestObjectWithId,
-  InspectionRequestsCollection,
-} from "./inspection-requests";
-import { Step } from "../../components/forms/StepWidget";
 import { InspectionRequestObject } from "../../components/forms/InspectionRequestForm";
+import { Step } from "../../components/forms/StepWidget";
+import { db } from "../firebaseConfig/init";
+import { InspectionRequestsCollection } from "./inspection-requests";
+import { UserWithId, UsersCollection } from "./users";
 
 export const InspectionFormsCollection = "inspection-forms";
 
@@ -260,6 +256,7 @@ export const useGetInspectionFormsByStatus = (status: string) => {
             form: data.form,
             createdByUser: createdByUser,
             id: doc.id,
+            reportStatus: data.reportStatus,
           };
         },
       );
