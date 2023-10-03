@@ -17,19 +17,18 @@ const Inspectors: NextPage = () => {
     UserType.customer,
   ]);
   const [userIds] = useQueryState<string[]>("selected", [""]);
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const { data: users } = useUsers();
 
   const selectedUsers = users?.filter((u) => userIds.includes(u.user_id));
   console.log("selectedUsers", selectedUsers);
   console.log("userId", userIds);
 
-  if (loading) return <h1>Loading...</h1>;
   if (!user) return <h1>U need to login</h1>;
 
   return (
     <AdminLayout currentTab={Tab.Users}>
-      <div className="-mx-4 flex flex-wrap">
+      <div className="flex flex-wrap -mx-4">
         <div className="w-full px-4 lg:w-4/12">
           <div className="mb-8 rounded-lg shadow-card border-[#e7e7e7] bg-white">
             <div className="border-b border-[#e7e7e7] py-4 px-8 lg:px-6 xl:px-8">
@@ -37,12 +36,12 @@ const Inspectors: NextPage = () => {
                 Filter by Type
               </h3>
             </div>
-            <div className="space-y-4 py-9 px-8 lg:px-6 xl:px-8">
+            <div className="px-8 space-y-4 py-9 lg:px-6 xl:px-8">
               {Object.values(UserType).map((userType) => (
                 <div key={userType}>
                   <label
                     htmlFor={`checkbox-${userType}`}
-                    className="flex cursor-pointer select-none items-center text-black"
+                    className="flex items-center text-black cursor-pointer select-none"
                   >
                     <div className="relative">
                       <input
@@ -58,7 +57,7 @@ const Inspectors: NextPage = () => {
                           }
                         }}
                       />
-                      <div className="box mr-4 flex h-5 w-5 items-center justify-center rounded border">
+                      <div className="flex items-center justify-center w-5 h-5 mr-4 border rounded box">
                         <span className="opacity-0">
                           <svg
                             width="11"
@@ -89,16 +88,14 @@ const Inspectors: NextPage = () => {
             <div className="overflow-hidden bg-white shadow sm:rounded-md">
               <ul
                 role="list"
-                className="divide-y divide-gray-200 flex flex-col"
+                className="flex flex-col divide-y divide-gray-200"
               >
                 {selectedUsers?.map((user) => (
                   <UserItem user={user} emphasize={true} key={user.id} />
                 ))}
                 {users
                   ?.filter((u) => types.includes(u.type))
-                  .map((user) => (
-                    <UserItem user={user} key={user.id} />
-                  ))}
+                  .map((user) => <UserItem user={user} key={user.id} />)}
               </ul>
             </div>
           </div>

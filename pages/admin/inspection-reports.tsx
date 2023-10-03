@@ -8,7 +8,7 @@ import {
 } from "../../lib/network/inspection-requests";
 
 const InspectorReports: NextPage = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const {
     data: allInspectionRequests,
     isLoading: isAllInspectionRequestsLoading,
@@ -17,14 +17,13 @@ const InspectorReports: NextPage = () => {
   const {
     data: allInspectionRequestsForUser,
     isLoading: isAllInspectionRequestsLoadingForUser,
-  } = useInspectionRequestsForUser(user?.claims.user_id as string);
+  } = useInspectionRequestsForUser(user?.uid as string);
 
-  if (loading) return <h1>Loading...</h1>;
   if (!user) return <h1>U need to login</h1>;
 
   return (
     <AdminLayout currentTab={Tab.InspectionReports}>
-      <div className="-mx-4 flex flex-wrap">TODO: Reports page</div>
+      <div className="flex flex-wrap -mx-4">TODO: Reports page</div>
     </AdminLayout>
   );
 };

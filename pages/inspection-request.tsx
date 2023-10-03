@@ -14,10 +14,10 @@ import {
 import { User } from "../lib/network/users";
 
 const InspectionRequest: NextPage = () => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   const { data: inspectionRequestsForUser } = useInspectionRequestsForUser(
-    user?.claims.user_id,
+    user?.uid,
   );
   const [inspectionRequest, setInspectionRequest] = React.useState<
     InspectionRequestObjectWithId | undefined

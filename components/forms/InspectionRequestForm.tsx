@@ -1,6 +1,6 @@
 import { EnvelopeIcon } from "@heroicons/react/20/solid";
 import * as yup from "yup";
-import { Dayjs, isDayjs } from "dayjs";
+import dayjs, { Dayjs, isDayjs } from "dayjs";
 import TextField from "@mui/material/TextField";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -30,7 +30,7 @@ import {
 
 export type InspectionRequestObject = {
   user_id: string;
-  inspectorRef: DocumentReference<DocumentData>;
+  inspectorRef?: DocumentReference<DocumentData>;
   firstName: string;
   lastName: string;
   businessName?: string;
@@ -73,9 +73,9 @@ const schema = yup.object().shape({
 
 export const InspectionRequestForm = () => {
   const formRef = useRef<HTMLFormElement>(null);
-  const [date, setDate, wipeDate] = usePersistentState<Dayjs | null>(
+  const [date, setDate, wipeDate] = usePersistentState<Dayjs>(
     "InspectionRequestForm/date",
-    null,
+    dayjs(new Date()),
   );
   const [notes, _, wipeNotes] = usePersistentState(
     "InspectionRequestForm/notes",
@@ -145,7 +145,7 @@ export const InspectionRequestForm = () => {
     isError: isMutationError,
   } = useAddInspectionRequest();
 
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const { fromSignin } = router.query;
 
@@ -177,7 +177,7 @@ export const InspectionRequestForm = () => {
   // This function handles form submission by sending the form data to Firebase
   const onSubmit = async (e: Event) => {
     e.preventDefault();
-    if (!user?.claims.user_id) {
+    if (!user?.uid) {
       console.error("User not logged in");
       let path = addQueryParameters("/signin", {
         redirect: router.asPath,
@@ -190,7 +190,7 @@ export const InspectionRequestForm = () => {
     }
 
     const inspectionRequest: InspectionRequestObject = {
-      user_id: user.claims.user_id,
+      user_id: user.uid,
       firstName,
       lastName,
       businessName,
@@ -556,13 +556,11 @@ export const InspectionRequestForm = () => {
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       disablePast
-                      InputProps={{ required: true }}
                       label="Inspection Day"
                       value={date}
                       onChange={(newValue) => {
-                        setDate(newValue);
+                        setDate(newValue!);
                       }}
-                      renderInput={(params) => <TextField {...params} />}
                       className="[&>label]:mt-1 [&>label]:text-body-color/50 text-body-color w-full rounded border border-[#EBEBEB] bg-white text-base leading-relaxed outline-none [&>div>input]:py-4 md:[&>div>input]:py-[18px] outline-none"
                     />
                   </LocalizationProvider>
